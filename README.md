@@ -5,7 +5,7 @@
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 ![Canvas](https://img.shields.io/badge/Canvas-API-green)
 <img alt="Static Badge" src="https://img.shields.io/badge/good-red">
-<img src="https://img.shields.io/github/stars/DXZ23456/Focus-Pomodoro-Timer" alt="GitHub Stars">
+<img src="https://img.shields.io/github/stars/DXZ23456/Matrix-Digital-Rain" alt="GitHub Stars">
 <img src="https://img.shields.io/badge/github-repo-blue?logo=github" />
 
 ## 🌟 项目简介

@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑客帝国代码雨 | 数字矩阵效果</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background-color: #000;
+            overflow: hidden;
+            font-family: 'Courier New', monospace;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: #0f0;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(0, 20, 0, 0.8);
+            border-bottom: 1px solid #0f0;
+            z-index: 10;
+        }
+        
+        h1 {
+            color: #0f0;
+            font-size: 2.5rem;
+            text-shadow: 0 0 10px #0f0, 0 0 20px #0f0;
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #0f0;
+            font-size: 1rem;
+            opacity: 0.8;
+        }
+        
+        .container {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+        
+        .controls {
+            width: 280px;
+            padding: 20px;
+            background: rgba(0, 30, 0, 0.7);
+            border-right: 1px solid #0f0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            z-index: 5;
+        }
+        
+        .controls h2 {
+            color: #0f0;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-align: center;
+            text-shadow: 0 0 5px #0f0;
+        }
+        
+        .control-group {
+            margin-bottom: 15px;
+        }
+        
+        .control-group label {
+            display: block;
+            color: #0f0;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            background: #002200;
+            border-radius: 3px;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: #0f0;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 5px #0f0;
+        }
+        
+        .range-value {
+            min-width: 40px;
+            text-align: center;
+            color: #0f0;
+            font-weight: bold;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #0f0;
+        }
+        
+        .color-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .color-option {
+            width: 100%;
+            height: 30px;
+            border: 2px solid transparent;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .color-option:hover {
+            transform: scale(1.05);
+        }
+        
+        .color-option.active {
+            border-color: #fff;
+            box-shadow: 0 0 8px #fff;
+        }
+        
+        .color-green { background: linear-gradient(45deg, #0f0, #0a0); }
+        .color-blue { background: linear-gradient(45deg, #00f, #008); }
+        .color-cyan { background: linear-gradient(45deg, #0ff, #088); }
+        .color-purple { background: linear-gradient(45deg, #a0f, #508); }
+        .color-red { background: linear-gradient(45deg, #f00, #800); }
+        .color-yellow { background: linear-gradient(45deg, #ff0, #880); }
+        
+        .btn {
+            padding: 12px;
+            background: #002200;
+            color: #0f0;
+            border: 1px solid #0f0;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 5px;
+        }
+        
+        .btn:hover {
+            background: #003300;
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .btn-full {
+            width: 100%;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn-group .btn {
+            flex: 1;
+        }
+        
+        .canvas-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        
+        .info-panel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 30, 0, 0.8);
+            border: 1px solid #0f0;
+            border-radius: 8px;
+            padding: 15px;
+            color: #0f0;
+            font-size: 0.9rem;
+            max-width: 300px;
+            z-index: 5;
+        }
+        
+        .info-panel h3 {
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-weight: bold;
+            text-shadow: 0 0 5px #0f0;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 10px;
+            background: rgba(0, 20, 0, 0.8);
+            border-top: 1px solid #0f0;
+            font-size: 0.8rem;
+            color: #0f0;
+            z-index: 10;
+        }
+        
+        .fullscreen-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 30, 0, 0.7);
+            color: #0f0;
+            border: 1px solid #0f0;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.3s;
+        }
+        
+        .fullscreen-btn:hover {
+            background: rgba(0, 40, 0, 0.9);
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            
+            .controls {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid #0f0;
+                max-height: 40vh;
+                overflow-y: auto;
+            }
+            
+            .controls h2 {
+                font-size: 1.2rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>黑客帝国代码雨</h1>
+        <p class="subtitle">数字矩阵效果 | 完全使用纯HTML/CSS/JS实现</p>
+    </div>
+    
+    <button class="fullscreen-btn" id="fullscreenBtn">
+        <span id="fullscreenText">全屏模式</span>
+    </button>
+    
+    <div class="container">
+        <div class="controls">
+            <h2>⚙️ 控制面板</h2>
+            
+            <div class="control-group">
+                <label>代码密度</label>
+                <div class="slider-container">
+                    <input type="range" id="density" min="20" max="200" value="100">
+                    <span class="range-value" id="densityValue">100</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>下落速度</label>
+                <div class="slider-container">
+                    <input type="range" id="speed" min="1" max="20" value="10">
+                    <span class="range-value" id="speedValue">10</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>字符大小</label>
+                <div class="slider-container">
+                    <input type="range" id="fontSize" min="10" max="30" value="18">
+                    <span class="range-value" id="fontSizeValue">18</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>尾迹长度</label>
+                <div class="slider-container">
+                    <input type="range" id="trailLength" min="5" max="30" value="15">
+                    <span class="range-value" id="trailLengthValue">15</span>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label>颜色主题</label>
+                <div class="color-options">
+                    <div class="color-option color-green active" data-color="#0f0"></div>
+                    <div class="color-option color-blue" data-color="#00f"></div>
+                    <div class="color-option color-cyan" data-color="#0ff"></div>
+                    <div class="color-option color-purple" data-color="#a0f"></div>
+                    <div class="color-option color-red" data-color="#f00"></div>
+                    <div class="color-option color-yellow" data-color="#ff0"></div>
+                </div>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="randomChars" checked>
+                <label for="randomChars">随机字符（不勾选则仅显示数字）</label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="glitchEffect" checked>
+                <label for="glitchEffect">启用故障效果</label>
+            </div>
+            
+            <div class="checkbox-group">
+                <input type="checkbox" id="mouseInteraction">
+                <label for="mouseInteraction">鼠标交互效果</label>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" id="resetBtn">重置设置</button>
+                <button class="btn" id="randomizeBtn">随机效果</button>
+            </div>
+            
+            <button class="btn btn-full" id="toggleRainBtn">暂停代码雨</button>
+        </div>
+        
+        <div class="canvas-container">
+            <canvas id="matrixCanvas"></canvas>
+            <div class="info-panel">
+                <h3>📊 实时状态</h3>
+                <div class="info-row">
+                    <span>字符数量：</span>
+                    <span class="info-value" id="charCount">0</span>
+                </div>
+                <div class="info-row">
+                    <span>帧率：</span>
+                    <span class="info-value" id="fps">0</span>
+                </div>
+                <div class="info-row">
+                    <span>屏幕分辨率：</span>
+                    <span class="info-value" id="resolution">0x0</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>黑客帝国代码雨效果 | 纯前端实现 | 支持全屏模式 | 版权所有 © 2023</p>
+    </div>
+
+    <script>
+        // 获取Canvas和上下文
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // 设置Canvas尺寸为窗口大小
+        canvas.width = canvas.clientWidth;
+        canvas.height = canvas.clientHeight;
+        
+        // 字符集 - 包含数字、英文字母、日文字符和特殊符号
+        const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+        const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const digits = '0123456789';
+        const symbols = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`';
+        const fullCharset = katakana + latin + digits + symbols;
+        const digitsOnly = digits;
+        
+        // 矩阵雨滴对象
+        class MatrixRain {
+            constructor() {
+                this.fontSize = 18;
+                this.columns = [];
+                this.animationId = null;
+                this.lastTime = 0;
+                this.fps = 0;
+                this.frameCount = 0;
+                this.lastFpsUpdate = 0;
+                this.isRunning = true;
+                this.charSet = fullCharset;
+                this.trailLength = 15;
+                this.rainColor = '#0f0';
+                this.mouseX = 0;
+                this.mouseY = 0;
+                this.mouseRadius = 100;
+                this.init();
+            }
+            
+            init() {
+                // 根据密度计算列数
+                const density = parseInt(document.getElementById('density').value);
+                const columnCount = Math.floor(canvas.width / this.fontSize) * density / 100;
+                
+                this.columns = [];
+                for (let i = 0; i < columnCount; i++) {
+                    this.columns.push({
+                        x: i * (canvas.width / columnCount),
+                        y: Math.random() * -canvas.height, // 随机起始位置
+                        speed: Math.random() * 5 + 5,
+                        chars: [],
+                        charSet: this.charSet,
+                        updateInterval: Math.floor(Math.random() * 5) + 2,
+                        updateCounter: 0
+                    });
+                }
+            }
+            
+            draw() {
+                // 半透明黑色矩形创建尾迹效果
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // 绘制每个雨滴列
+                for (let column of this.columns) {
+                    // 更新雨滴位置
+                    column.y += column.speed * (parseInt(document.getElementById('speed').value) / 10);
+                    
+                    // 如果雨滴超出屏幕，重置到顶部
+                    if (column.y > canvas.height) {
+                        column.y = 0;
+                        column.x = Math.random() * canvas.width;
+                    }
+                    
+                    // 更新字符
+                    column.updateCounter++;
+                    if (column.updateCounter >= column.updateInterval) {
+                        column.updateCounter = 0;
+                        
+                        // 添加新字符
+                        const randomChar = column.charSet.charAt(Math.floor(Math.random() * column.charSet.length));
+                        column.chars.unshift({
+                            char: randomChar,
+                            brightness: 1.0
+                        });
+                        
+                        // 限制字符数量
+                        if (column.chars.length > this.trailLength) {
+                            column.chars.pop();
+                        }
+                    }
+                    
+                    // 绘制字符
+                    for (let i = 0; i < column.chars.length; i++) {
+                        const char = column.chars[i];
+                        const y = column.y - (i * this.fontSize);
+                        
+                        // 跳过屏幕外的字符
+                        if (y < -this.fontSize || y > canvas.height) continue;
+                        
+                        // 计算字符亮度（尾迹效果）
+                        const brightness = char.brightness * (1 - i / this.trailLength);
+                        
+                        // 设置颜色
+                        ctx.fillStyle = this.rainColor.replace(')', `, ${brightness})`).replace('rgb', 'rgba');
+                        
+                        // 设置字体
+                        ctx.font = `${this.fontSize}px 'Courier New', monospace`;
+                        
+                        // 绘制字符
+                        ctx.fillText(char.char, column.x, y);
+                        
+                        // 逐渐降低字符亮度
+                        char.brightness = Math.max(0, char.brightness - 0.1);
+                    }
+                }
+            }
+            
+            updateStats() {
+                // 更新字符计数
+                let charCount = 0;
+                for (let column of this.columns) {
+                    charCount += column.chars.length;
+                }
+                document.getElementById('charCount').textContent = charCount;
+                
+                // 更新FPS
+                this.frameCount++;
+                const now = performance.now();
+                if (now - this.lastFpsUpdate >= 1000) {
+                    this.fps = Math.round((this.frameCount * 1000) / (now - this.lastFpsUpdate));
+                    this.lastFpsUpdate = now;
+                    this.frameCount = 0;
+                    document.getElementById('fps').textContent = this.fps;
+                }
+                
+                // 更新分辨率
+                document.getElementById('resolution').textContent = `${canvas.width}×${canvas.height}`;
+            }
+            
+            animate(timestamp) {
+                if (!this.lastTime) this.lastTime = timestamp;
+                
+                if (this.isRunning) {
+                    this.draw();
+                    this.updateStats();
+                    
+                    // 应用故障效果
+                    if (document.getElementById('glitchEffect').checked && Math.random() < 0.01) {
+                        this.applyGlitchEffect();
+                    }
+                    
+                    // 应用鼠标交互效果
+                    if (document.getElementById('mouseInteraction').checked) {
+                        this.applyMouseInteraction();
+                    }
+                }
+                
+                this.animationId = requestAnimationFrame((ts) => this.animate(ts));
+            }
+            
+            applyGlitchEffect() {
+                // 随机水平偏移模拟故障效果
+                const glitchAmount = Math.random() * 10;
+                const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                tempCanvas.width = canvas.width;
+                tempCanvas.height = canvas.height;
+                tempCtx.putImageData(imageData, 0, 0);
+                
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(tempCanvas, glitchAmount, 0);
+            }
+            
+            applyMouseInteraction() {
+                for (let column of this.columns) {
+                    const dx = column.x - this.mouseX;
+                    const dy = column.y - this.mouseY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < this.mouseRadius) {
+                        // 鼠标附近的雨滴加速
+                        column.speed = Math.min(20, column.speed + 0.5);
+                        // 鼠标附近的雨滴改变方向
+                        column.x += (dx / distance) * 2;
+                    } else {
+                        // 恢复正常速度
+                        column.speed = Math.max(5, column.speed - 0.1);
+                    }
+                }
+            }
+            
+            resize() {
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+                this.init();
+            }
+        }
+        
+        // 初始化矩阵雨
+        const matrixRain = new MatrixRain();
+        
+        // 事件监听器
+        function setupEventListeners() {
+            // 窗口大小改变时重置Canvas
+            window.addEventListener('resize', () => {
+                matrixRain.resize();
+            });
+            
+            // 控制滑块
+            document.getElementById('density').addEventListener('input', function() {
+                document.getElementById('densityValue').textContent = this.value;
+                matrixRain.init();
+            });
+            
+            document.getElementById('speed').addEventListener('input', function() {
+                document.getElementById('speedValue').textContent = this.value;
+            });
+            
+            document.getElementById('fontSize').addEventListener('input', function() {
+                document.getElementById('fontSizeValue').textContent = this.value;
+                matrixRain.fontSize = parseInt(this.value);
+                matrixRain.init();
+            });
+            
+            document.getElementById('trailLength').addEventListener('input', function() {
+                document.getElementById('trailLengthValue').textContent = this.value;
+                matrixRain.trailLength = parseInt(this.value);
+            });
+            
+            // 颜色选择
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    document.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    matrixRain.rainColor = this.getAttribute('data-color');
+                });
+            });
+            
+            // 随机字符切换
+            document.getElementById('randomChars').addEventListener('change', function() {
+                matrixRain.charSet = this.checked ? fullCharset : digitsOnly;
+                for (let column of matrixRain.columns) {
+                    column.charSet = matrixRain.charSet;
+                }
+            });
+            
+            // 鼠标位置跟踪
+            canvas.addEventListener('mousemove', (e) => {
+                const rect = canvas.getBoundingClientRect();
+                matrixRain.mouseX = e.clientX - rect.left;
+                matrixRain.mouseY = e.clientY - rect.top;
+            });
+            
+            // 按钮事件
+            document.getElementById('resetBtn').addEventListener('click', () => {
+                document.getElementById('density').value = 100;
+                document.getElementById('densityValue').textContent = 100;
+                document.getElementById('speed').value = 10;
+                document.getElementById('speedValue').textContent = 10;
+                document.getElementById('fontSize').value = 18;
+                document.getElementById('fontSizeValue').textContent = 18;
+                document.getElementById('trailLength').value = 15;
+                document.getElementById('trailLengthValue').textContent = 15;
+                document.getElementById('randomChars').checked = true;
+                document.getElementById('glitchEffect').checked = true;
+                document.getElementById('mouseInteraction').checked = false;
+                
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                document.querySelector('.color-green').classList.add('active');
+                
+                matrixRain.fontSize = 18;
+                matrixRain.trailLength = 15;
+                matrixRain.rainColor = '#0f0';
+                matrixRain.charSet = fullCharset;
+                matrixRain.init();
+            });
+            
+            document.getElementById('randomizeBtn').addEventListener('click', () => {
+                // 随机化所有设置
+                document.getElementById('density').value = Math.floor(Math.random() * 180) + 20;
+                document.getElementById('densityValue').textContent = document.getElementById('density').value;
+                document.getElementById('speed').value = Math.floor(Math.random() * 19) + 1;
+                document.getElementById('speedValue').textContent = document.getElementById('speed').value;
+                document.getElementById('fontSize').value = Math.floor(Math.random() * 20) + 10;
+                document.getElementById('fontSizeValue').textContent = document.getElementById('fontSize').value;
+                document.getElementById('trailLength').value = Math.floor(Math.random() * 25) + 5;
+                document.getElementById('trailLengthValue').textContent = document.getElementById('trailLength').value;
+                
+                // 随机颜色
+                const colors = ['#0f0', '#00f', '#0ff', '#a0f', '#f00', '#ff0'];
+                const randomColor = colors[Math.floor(Math.random() * colors.length)];
+                matrixRain.rainColor = randomColor;
+                
+                // 更新颜色选择
+                document.querySelectorAll('.color-option').forEach(opt => {
+                    opt.classList.remove('active');
+                    if (opt.getAttribute('data-color') === randomColor) {
+                        opt.classList.add('active');
+                    }
+                });
+                
+                matrixRain.fontSize = parseInt(document.getElementById('fontSize').value);
+                matrixRain.trailLength = parseInt(document.getElementById('trailLength').value);
+                matrixRain.init();
+            });
+            
+            document.getElementById('toggleRainBtn').addEventListener('click', function() {
+                matrixRain.isRunning = !matrixRain.isRunning;
+                this.textContent = matrixRain.isRunning ? '暂停代码雨' : '继续代码雨';
+            });
+            
+            // 全屏按钮
+            document.getElementById('fullscreenBtn').addEventListener('click', toggleFullscreen);
+            
+            // 监听全屏变化
+            document.addEventListener('fullscreenchange', handleFullscreenChange);
+            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+        }
+        
+        // 全屏功能
+        function toggleFullscreen() {
+            if (!document.fullscreenElement && !document.webkitFullscreenElement &&
+                !document.mozFullScreenElement && !document.msFullscreenElement) {
+                // 进入全屏
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                } else if (document.documentElement.webkitRequestFullscreen) {
+                    document.documentElement.webkitRequestFullscreen();
+                } else if (document.documentElement.mozRequestFullScreen) {
+                    document.documentElement.mozRequestFullScreen();
+                } else if (document.documentElement.msRequestFullscreen) {
+                    document.documentElement.msRequestFullscreen();
+                }
+            } else {
+                // 退出全屏
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            }
+        }
+        
+        function handleFullscreenChange() {
+            const isFullscreen = !!(document.fullscreenElement || document.webkitFullscreenElement ||
+                                  document.mozFullScreenElement || document.msFullscreenElement);
+            
+            document.getElementById('fullscreenText').textContent = isFullscreen ? '退出全屏' : '全屏模式';
+            
+            // 全屏变化后重新调整Canvas大小
+            setTimeout(() => {
+                matrixRain.resize();
+            }, 100);
+        }
+        
+        // 初始化
+        setupEventListeners();
+        matrixRain.animate(0);
+    </script>
+</body>
+</html>

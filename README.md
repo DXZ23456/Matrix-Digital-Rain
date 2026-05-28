@@ -4,7 +4,7 @@
 ![CSS](https://img.shields.io/badge/CSS-3-blue)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow)
 ![Canvas](https://img.shields.io/badge/Canvas-API-green)
-![No Dependencies](https://img.shields.io/badge/Dependencies-None-success)
+![No Dependencies](https://img.shields.io/badge/Dependencies-None-success-black)
 <img alt="Static Badge" src="https://img.shields.io/badge/good-red">
 <img src="https://img.shields.io/github/stars/DXZ23456/Focus-Pomodoro-Timer" alt="GitHub Stars">
 <img src="https://img.shields.io/badge/github-repo-blue?logo=github" />
